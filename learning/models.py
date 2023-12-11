@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models import CASCADE
+
+from users.models import User
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -22,6 +25,7 @@ class Lesson(models.Model):
     description_lesson = models.TextField(verbose_name='описание урока')
     preview_lesson = models.ImageField(verbose_name='превью урока', ** NULLABLE)
     url_video = models.CharField(verbose_name='ссылка на видео')
+    course = models.ForeignKey(Course, verbose_name='курс', on_delete=CASCADE)
 
     def __str__(self):
         return f'{self.name_lesson}'
@@ -31,3 +35,18 @@ class Lesson(models.Model):
         verbose_name_plural = 'курсы'
         ordering = ('name_lesson',)
 
+
+class Pay(models.Model):
+    user = models.ForeignKey(User, verbose_name='пользователь', on_delete=CASCADE)
+    date_pay = models.DateField(verbose_name='дата оплаты')
+    paid_course = models.ForeignKey(Course, verbose_name='оплаченный курс', on_delete=CASCADE)
+    paid_lesson = models.ForeignKey(Lesson, verbose_name='оплаченный урок', on_delete=CASCADE)
+    payment_amount = models.IntegerField(verbose_name='сумма оплаты')
+    payment_method = models.CharField(verbose_name='метод оплаты')
+
+    def __str__(self):
+        return f'{self.date_pay}'
+
+    class Meta:
+        verbose_name = 'платеж'
+        verbose_name_plural = 'платежи'
