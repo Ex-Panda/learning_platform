@@ -10,6 +10,7 @@ class Course(models.Model):
     name_course = models.CharField(max_length=50, verbose_name='название курса')
     preview_course = models.ImageField(verbose_name='превью курса', **NULLABLE)
     description_course = models.TextField(verbose_name='описание курса')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE)
 
     def __str__(self):
         return f'{self.name_course}'
@@ -26,13 +27,14 @@ class Lesson(models.Model):
     preview_lesson = models.ImageField(verbose_name='превью урока', ** NULLABLE)
     url_video = models.CharField(verbose_name='ссылка на видео')
     course = models.ForeignKey(Course, verbose_name='курс', on_delete=CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE)
 
     def __str__(self):
         return f'{self.name_lesson}'
 
     class Meta:
-        verbose_name = 'курс'
-        verbose_name_plural = 'курсы'
+        verbose_name = 'урок'
+        verbose_name_plural = 'уроки'
         ordering = ('name_lesson',)
 
 
