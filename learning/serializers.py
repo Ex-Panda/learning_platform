@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from learning.models import Course, Lesson, Pay
+from learning.models import Course, Lesson, Pay, Subscription
+from learning.validators import TitleValidator
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -9,6 +10,7 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = "__all__"
+        validators = [TitleValidator(field='description_lesson'), TitleValidator(field='url_video')]
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -18,6 +20,7 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = "__all__"
+        validators = [TitleValidator(field='description_course')]
 
     @staticmethod
     def get_count_lesson(obj):
@@ -41,3 +44,11 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
 
         return token
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = ['course_subscription']
+

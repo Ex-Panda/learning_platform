@@ -2,11 +2,14 @@ from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, permissions
 from rest_framework.filters import OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from learning.models import Course, Lesson, Pay
-from learning.serializers import CourseSerializer, LessonSerializer, PaySerializer, MyTokenObtainPairSerializer
+from learning.models import Course, Lesson, Pay, Subscription
+from learning.serializers import CourseSerializer, LessonSerializer, PaySerializer, MyTokenObtainPairSerializer, \
+    SubscriptionSerializer
 
 
 class ModeratorPermission(permissions.BasePermission):
@@ -37,6 +40,7 @@ class ChecksUser:
 class CourseViewSet(ChecksUser, viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+    pagination_class = PageNumberPagination
 
     def get_permissions(self):
         """
@@ -53,6 +57,14 @@ class CourseViewSet(ChecksUser, viewsets.ModelViewSet):
         serializer.save()
         self.request.user.course_set.add(serializer.instance)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        subscription = instance.subscription_set.filter(user=request.user).exists()
+        dict_subscription = serializer.data
+        dict_subscription['subscription'] = subscription
+        return Response(dict_subscription)
+
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
@@ -68,6 +80,7 @@ class LessonListAPIView(ChecksUser, generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
 
 
 class LessonRetrieveAPIView(ChecksUser, generics.RetrieveAPIView):
@@ -98,3 +111,18 @@ class PayListAPIView(generics.ListAPIView):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class SubscriptionCreateAPIView(generics.CreateAPIView):
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save()
+        self.request.user.subscription_set.add(serializer.instance)
+
+
+class SubscriptionDestroyAPIView(ChecksUser, generics.DestroyAPIView):
+    queryset = Subscription.objects.all()
+    permission_classes = [IsAuthenticated]
