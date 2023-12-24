@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from learning.models import Course, Lesson, Pay, Subscription
-from learning.validators import TitleValidator
+from learning.validators import TitleValidator, PayValidator
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -32,6 +32,7 @@ class PaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Pay
         fields = "__all__"
+        validators = [PayValidator(field1='paid_course', field2='paid_lesson')]
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from learning.models import Course, Lesson, Pay, Subscription
 from learning.serializers import CourseSerializer, LessonSerializer, PaySerializer, MyTokenObtainPairSerializer, \
     SubscriptionSerializer
+import stripe
 
 
 class ModeratorPermission(permissions.BasePermission):
@@ -126,3 +127,20 @@ class SubscriptionCreateAPIView(generics.CreateAPIView):
 class SubscriptionDestroyAPIView(ChecksUser, generics.DestroyAPIView):
     queryset = Subscription.objects.all()
     permission_classes = [IsAuthenticated]
+
+
+class PayCreateAPIView(generics.CreateAPIView):
+    serializer_class = PaySerializer
+    queryset = Pay.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        payment = serializer.save()
+        self.request.user.pay_set.add(serializer.instance)
+        pay = stripe.PaymentIntent.create(
+            amount=payment.payment_amount,
+            currency="usd",
+            automatic_payment_methods={"enabled": True}
+        )
+        pay.save()
+        return super().perform_create(serializer)

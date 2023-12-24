@@ -13,6 +13,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+import stripe
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,6 +33,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+stripe.api_key = os.getenv('stripe.api_key')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
+    'corsheaders',
 
     'learning',
     'users',
@@ -53,6 +58,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -154,3 +160,13 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "https://read-only.example.com",
+    "https://read-and-write.example.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://read-and-write.example.com",
+]
+CORS_ALLOW_ALL_ORIGINS = False

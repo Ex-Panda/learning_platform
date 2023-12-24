@@ -39,10 +39,10 @@ class Lesson(models.Model):
 
 
 class Pay(models.Model):
-    user = models.ForeignKey(User, verbose_name='пользователь', on_delete=CASCADE)
-    date_pay = models.DateField(verbose_name='дата оплаты')
-    paid_course = models.ForeignKey(Course, verbose_name='оплаченный курс', on_delete=CASCADE)
-    paid_lesson = models.ForeignKey(Lesson, verbose_name='оплаченный урок', on_delete=CASCADE)
+    user = models.ForeignKey(User, verbose_name='пользователь', on_delete=CASCADE, **NULLABLE)
+    date_pay = models.DateField(verbose_name='дата оплаты', auto_now_add=True)
+    paid_course = models.ForeignKey(Course, verbose_name='оплаченный курс', on_delete=CASCADE, **NULLABLE)
+    paid_lesson = models.ForeignKey(Lesson, verbose_name='оплаченный урок', on_delete=CASCADE, **NULLABLE)
     payment_amount = models.IntegerField(verbose_name='сумма оплаты')
     payment_method = models.CharField(verbose_name='метод оплаты')
 
