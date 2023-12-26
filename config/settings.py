@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 import stripe
 
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'drf_yasg',
     'corsheaders',
+    'django_celery_beat',
 
     'learning',
     'users',
@@ -170,3 +173,21 @@ CSRF_TRUSTED_ORIGINS = [
     "https://read-and-write.example.com",
 ]
 CORS_ALLOW_ALL_ORIGINS = False
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_TIMEZONE = "Europe/Moscow"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_BEAT_SCHEDULE = {
+    'check': {
+        'task': 'learning.tasks.check',
+        'schedule': crontab(minute=55, hour=23),
+    },
+    'last_login': {
+        'task': 'learning.tasks.last_login_user',
+        'schedule': crontab(minute=0, hour=0),
+    }
+}
